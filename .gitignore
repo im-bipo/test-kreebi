@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# visit logs (local file store, see app/api/visits)
+/data
+
 # vercel
 .vercel
 
