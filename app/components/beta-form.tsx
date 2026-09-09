@@ -19,7 +19,10 @@ export default function BetaForm() {
       const res = await fetch("/api/beta", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          page: window.location.pathname + window.location.search,
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;

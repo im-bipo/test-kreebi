@@ -2,6 +2,7 @@ import { NextResponse, after } from "next/server";
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { notifySlack } from "../../lib/slack";
+import { parseAttribution, resolveSource } from "../../lib/visits";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOG_FILE = path.join(process.cwd(), "data", "beta.jsonl");
@@ -23,7 +24,7 @@ function rateLimited(ip: string): boolean {
 
 // Beta / newsletter signup: validates the email, logs it, notifies Slack.
 export async function POST(request: Request) {
-  let body: { email?: unknown } = {};
+  let body: { email?: unknown; page?: unknown } = {};
   try {
     body = await request.json();
   } catch {
@@ -56,11 +57,18 @@ export async function POST(request: Request) {
   const entry = {
     ts: new Date().toISOString(),
     email,
+    // Which channel drove the signup (?utm_source=youtube, ?ref=facebook…).
+    via: resolveSource(
+      typeof body.page === "string"
+        ? parseAttribution(body.page.slice(0, 500)).source
+        : null,
+      "direct",
+    ),
     ip,
     ua: (request.headers.get("user-agent") ?? "unknown").slice(0, 300),
   };
 
-  console.log(`[beta] ${entry.email} (ip=${entry.ip})`);
+  console.log(`[beta] ${entry.email} via ${entry.via} (ip=${entry.ip})`);
 
   // Respond immediately; persist + notify Slack after the response is sent.
   after(async () => {
@@ -71,9 +79,10 @@ export async function POST(request: Request) {
       // ignore — console + Slack remain the record
     }
     await notifySlack(
-      [`Beta signup: ${entry.email}`, `IP: ${entry.ip} · ${entry.ts}`].join(
-        "\n",
-      ),
+      [
+        `Beta signup: ${entry.email} (via ${entry.via})`,
+        `IP: ${entry.ip} · ${entry.ts}`,
+      ].join("\n"),
     );
   });
 

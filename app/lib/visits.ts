@@ -6,6 +6,9 @@ export type VisitEntry = {
   path: string;
   referrer: string | null;
   refDomain: string;
+  source: string;
+  medium: string | null;
+  campaign: string | null;
   ip: string;
   ua: string;
 };
@@ -21,6 +24,39 @@ export function getRefDomain(ref: string | null | undefined): string {
   } catch {
     return "direct";
   }
+}
+
+export type Attribution = {
+  source: string | null;
+  medium: string | null;
+  campaign: string | null;
+};
+
+// Reads ?utm_source= / ?ref= (plus medium/campaign) from a page path like
+// "/?utm_source=youtube". Use tagged links when sharing so the source is
+// tracked even when apps (Facebook, YouTube) strip the referrer.
+export function parseAttribution(pagePath: string): Attribution {
+  try {
+    const q = new URL(pagePath, "http://x").searchParams;
+    const clean = (v: string | null) => v?.trim().slice(0, 100) || null;
+    return {
+      source: clean(q.get("utm_source") ?? q.get("ref")),
+      medium: clean(q.get("utm_medium")),
+      campaign: clean(q.get("utm_campaign")),
+    };
+  } catch {
+    return { source: null, medium: null, campaign: null };
+  }
+}
+
+// Final verdict on where a visit came from: tagged source wins,
+// then the referrer domain, then "direct".
+export function resolveSource(
+  taggedSource: string | null,
+  refDomain: string,
+): string {
+  if (taggedSource) return taggedSource.toLowerCase();
+  return refDomain;
 }
 
 // Best-effort: never throws (filesystem is ephemeral on serverless hosts,
