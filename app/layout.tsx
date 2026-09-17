@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 const title = "Kreebi AI Website Builder";
 const description =
-  "Kreebi AI Website Builder is the fastest free way to build stunning WordPress pages with AI. Launching 14th September — join the beta.";
+  "Kreebi AI Website Builder is the fastest free way to build stunning WordPress pages with AI. Launching 25th September 2026 — join the beta.";
 
 // The live site will be https://kreebi.com — used as the base for absolute
 // Open Graph / Twitter URLs (logo included). Override per-deploy with
