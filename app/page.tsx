@@ -6,10 +6,10 @@ import BetaForm from "./components/beta-form";
 
 function getReleaseDate(now: Date) {
   const year = now.getFullYear();
-  // 14th September, midnight local time
-  let target = new Date(year, 8, 14, 0, 0, 0);
+  // 26th September, midnight local time
+  let target = new Date(year, 8, 26, 0, 0, 0);
   if (now.getTime() > target.getTime()) {
-    target = new Date(year + 1, 8, 14, 0, 0, 0);
+    target = new Date(year + 1, 8, 26, 0, 0, 0);
   }
   return target;
 }
@@ -96,7 +96,7 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl">
             First release will be on
-            <span className="block text-primary">14th September</span>
+            <span className="block text-primary">26th September</span>
           </h1>
           <p className="mx-auto max-w-md text-base leading-relaxed text-zinc-500 sm:text-lg">
             The fastest free way to build stunning WordPress pages with AI.
